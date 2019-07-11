@@ -28,6 +28,7 @@ def hello():
     v=VokaturiHelper()
     #print(v.analyzeEmotion("http://localhost:8080/public/audio/cliente1.wav"))
     v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
+    print(v.emotions.anger)
     """Return a friendly HTTP greeting."""
     return 'Hello World!'
 

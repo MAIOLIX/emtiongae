@@ -49,11 +49,12 @@ class VokaturiHelper(object):
             voice.extract(quality, emotionProbabilities)
             result=filePath
             if quality.valid:
-            #print ("Neutral: %.3f" % emotionProbabilities.neutrality)
-            #print ("Happy: %.3f" % emotionProbabilities.happiness)
-            #print ("Sad: %.3f" % emotionProbabilities.sadness)
-            #print ("Angry: %.3f" % emotionProbabilities.anger)
-            #print ("Fear: %.3f" % emotionProbabilities.fear)
+                self.emotions=EmotionObject(emotionProbabilities.neutrality,emotionProbabilities.happiness,emotionProbabilities.sadness,emotionProbabilities.anger,emotionProbabilities.fear)
+                #print ("Neutral: %.3f" % emotionProbabilities.neutrality)
+                #print ("Happy: %.3f" % emotionProbabilities.happiness)
+                #print ("Sad: %.3f" % emotionProbabilities.sadness)
+                #print ("Angry: %.3f" % emotionProbabilities.anger)
+                #print ("Fear: %.3f" % emotionProbabilities.fear)
                 result=result+";%.3f"%emotionProbabilities.neutrality+";%.3f"%emotionProbabilities.happiness+";%.3f"%emotionProbabilities.sadness+";%.3f"%emotionProbabilities.anger+";%.3f"%emotionProbabilities.fear
             else:
                 print ("Not enough sonorancy to determine emotions")
@@ -83,6 +84,14 @@ class VokaturiHelper(object):
         os.remove(tempDirectory)
         
         
+class EmotionObject:
+    def __init__(self,netrual,happiness,sadness,anger,fear):
+        self.netrual=netrual
+        self.happiness=happiness
+        self.sadness=sadness
+        self.anger=anger
+        self.fear=fear
         
+           
     
     
