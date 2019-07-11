@@ -13,22 +13,21 @@
 # limitations under the License.
 
 # [START gae_python37_app]
-from flask import Flask,request,send_from_directory
+from flask import Flask,request,send_from_directory,json
 from sys import platform
 from VokaturiHelper import VokaturiHelper
+
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
-
+v=VokaturiHelper();
 
 @app.route('/')
 def hello():
     print(platform)
-    v=VokaturiHelper()
     #print(v.analyzeEmotion("http://localhost:8080/public/audio/cliente1.wav"))
-    v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
-    print(v.emotions.anger)
+   
     """Return a friendly HTTP greeting."""
     return 'Hello World!'
 
@@ -37,8 +36,12 @@ def hello():
 def getStaticResources(path):
     return send_from_directory('public', path)
 
-
-
+@app.route('/emotions')
+def emotions():
+    v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
+    response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+    return response
+     
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
