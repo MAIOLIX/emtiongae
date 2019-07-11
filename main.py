@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # [START gae_python37_app]
-from flask import Flask
+from flask import Flask,request,send_from_directory
 from sys import platform
 from VokaturiHelper import VokaturiHelper
 
@@ -26,9 +26,17 @@ app = Flask(__name__)
 def hello():
     print(platform)
     v=VokaturiHelper()
-    print(v.analyzeEmotion("cliente1.wav"))
+    #print(v.analyzeEmotion("http://localhost:8080/public/audio/cliente1.wav"))
+    v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
     """Return a friendly HTTP greeting."""
     return 'Hello World!'
+
+
+@app.route('/public/<path:path>')
+def getStaticResources(path):
+    return send_from_directory('public', path)
+
+
 
 
 if __name__ == '__main__':

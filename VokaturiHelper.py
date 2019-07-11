@@ -9,6 +9,8 @@ sys.path.append("./api")
 import Vokaturi
 import scipy.io.wavfile
 import os
+import requests
+import uuid
 
 class VokaturiHelper(object):
     
@@ -70,3 +72,17 @@ class VokaturiHelper(object):
             if app is not None:
                 result=result+'\n'+app
         return result
+    
+    def analyzeEmotionFromUrl(self,url):
+        tempDirectory='tmp'
+        r = requests.get(url, allow_redirects=True)
+        fileTempName=str(uuid.uuid4())
+        tempDirectory=tempDirectory+'/'+fileTempName
+        open(tempDirectory,'wb').write(r.content)
+        print(self.analyzeEmotion(tempDirectory))
+        os.remove(tempDirectory)
+        
+        
+        
+    
+    
