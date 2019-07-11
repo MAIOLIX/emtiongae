@@ -16,6 +16,7 @@
 from flask import Flask,request,send_from_directory,json
 from sys import platform
 from VokaturiHelper import VokaturiHelper
+from numpy.distutils.fcompiler import none
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -36,10 +37,15 @@ def hello():
 def getStaticResources(path):
     return send_from_directory('public', path)
 
-@app.route('/emotions')
+@app.route('/emotions',methods=['POST'])
 def emotions():
-    v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
-    response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+    request_json= request.get_json()
+    fileUrl=request_json.get('url')
+    if fileUrl is not None:
+        v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
+        response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+    else :
+        response=app.response_class(response='FILE URL missing',status=301)
     return response
      
 
