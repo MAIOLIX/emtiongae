@@ -16,7 +16,6 @@
 from flask import Flask,request,send_from_directory,json
 from sys import platform
 from VokaturiHelper import VokaturiHelper
-from numpy.distutils.fcompiler import none
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
