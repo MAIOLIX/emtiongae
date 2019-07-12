@@ -11,6 +11,7 @@ import scipy.io.wavfile
 import os
 import requests
 import uuid
+import base64
 
 class VokaturiHelper(object):
     
@@ -82,6 +83,19 @@ class VokaturiHelper(object):
         open(tempDirectory,'wb').write(r.content)
         print(self.analyzeEmotion(tempDirectory))
         os.remove(tempDirectory)
+
+    def analyzeEmotionFromEncoded(self,encoded):
+        decoded=base64.b64decode(encoded)
+        tempDirectory='tmp'
+        fileTempName=str(uuid.uuid4())
+        tempDirectory=tempDirectory+'/'+fileTempName+'.wav'
+        open(tempDirectory,'wb').write(decoded)
+        print(self.analyzeEmotion(tempDirectory))
+        os.remove(tempDirectory)
+        
+        
+
+
         
         
 class EmotionObject:

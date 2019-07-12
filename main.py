@@ -46,6 +46,20 @@ def emotions():
     else :
         response=app.response_class(response='FILE URL missing',status=301)
     return response
+
+
+@app.route('/emotions/embedded',methods=['POST'])
+def emotionEmbedded() :
+    request_json=request.get_json()
+    encodedFile=request_json.get('wav')
+    if encodedFile is not None :
+        v.analyzeEmotionFromEncoded(encodedFile)
+        response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+    else :
+        response=app.response_class(response='encoded ERROR',status=301)
+
+    return response
+
      
 
 if __name__ == '__main__':
