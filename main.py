@@ -41,7 +41,7 @@ def emotions():
     request_json= request.get_json()
     fileUrl=request_json.get('url')
     if fileUrl is not None:
-        v.analyzeEmotionFromUrl('http://localhost:8080/public/audio/cliente1.wav')
+        v.analyzeEmotionFromUrl(fileUrl)
         response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
     else :
         response=app.response_class(response='FILE URL missing',status=301)
