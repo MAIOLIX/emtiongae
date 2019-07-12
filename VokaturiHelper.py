@@ -89,9 +89,6 @@ class VokaturiHelper(object):
         print(self.analyzeEmotion(f))
         
         
-
-
-        
         
 class EmotionObject:
     def __init__(self,netrual,happiness,sadness,anger,fear):

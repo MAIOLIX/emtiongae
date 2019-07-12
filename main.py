@@ -32,6 +32,11 @@ def hello():
     return 'Hello World!'
 
 
+
+
+
+
+
 @app.route('/public/<path:path>')
 def getStaticResources(path):
     return send_from_directory('public', path)
