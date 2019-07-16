@@ -16,10 +16,12 @@ class GspeechToTextHelper(object):
     def __init__(self):
         pathCredential=os.path.abspath("emotionsproject-e711fd0283dd.json")
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=pathCredential
+        #print(os.environ["http_proxy"])
     
     def transcribe(self,filePath,sample_rate,languageCode):
         client = speech.SpeechClient()
-        audio_file=open(filePath,'rb')
+        #audio_file=open(filePath,'rb')
+        audio_file=filePath
         content=audio_file.read();
         audio=types.RecognitionAudio(content=content)
         config = types.RecognitionConfig(

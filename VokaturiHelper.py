@@ -10,9 +10,7 @@ import Vokaturi
 
 import os
 import requests
-import uuid
 import base64
-import tempfile
 import io 
 
 

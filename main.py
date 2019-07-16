@@ -16,12 +16,21 @@
 from flask import Flask,request,send_from_directory,json
 from sys import platform
 from VokaturiHelper import VokaturiHelper
+from GspeechToTextHelper import GspeechToTextHelper
+from GnlpSentimentHelper import GSentimentHelper
+from HttpInputHelper import HttpInputHelper
+from HttpInputHelper import ErrorResponse,TrascriviResponse,TextSentimentResponse
+from scipy.io import wavfile
+import time
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
 app = Flask(__name__)
 v=VokaturiHelper();
+transcriber=GspeechToTextHelper()
+textSentiment=GSentimentHelper()
+fileInputHelper=HttpInputHelper()
 
 @app.route('/')
 def hello():
@@ -41,7 +50,7 @@ def hello():
 def getStaticResources(path):
     return send_from_directory('public', path)
 
-@app.route('/emotions',methods=['POST'])
+@app.route('/emotion',methods=['POST'])
 def emotions():
     request_json= request.get_json()
     fileUrl=request_json.get('url')
@@ -49,7 +58,7 @@ def emotions():
         v.analyzeEmotionFromUrl(fileUrl)
         response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
     else :
-        response=app.response_class(response='FILE URL missing',status=301)
+        response=app.response_class(response='FILE URL missing',status=400)
     return response
 
 
@@ -64,6 +73,38 @@ def emotionEmbedded() :
         response=app.response_class(response='encoded ERROR',status=301)
 
     return response
+
+@app.route('/emotions/text/transcribe/transcribeByUrl',methods=['POST'])
+def trascribeFromUrl():
+    start=time.time()
+    myRequest=request.get_json()
+    myUrl=myRequest.get('url')
+    myResponse=None
+    myStatus=None
+    if myUrl is not None:
+        f=fileInputHelper.getFileFromUrl(myUrl)
+        try:
+             (sample_rate,samples)=wavfile.read(f)
+             print('sample Rate  %.3f Hz' %sample_rate)
+             transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
+             end=time.time()
+             elapsed=end-start
+             myResponse=TrascriviResponse(transcriptions,sample_rate,elapsed)
+             myStatus=200
+        except:
+            myResponse=ErrorResponse('Errore su trascrizione','Errore transcrizione')
+            myStatus=400
+        finally:
+            results=app.response_class(response=json.dumps(myResponse.__dict__),status=myStatus,mimetype='application/json')
+    else:
+        results=app.response_class(response="Url non trovato",status=400,mimetype='application/json')
+            
+    return results    
+
+
+
+
+
 
      
 

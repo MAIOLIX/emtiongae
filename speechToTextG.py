@@ -6,26 +6,18 @@ Created on 15 lug 2019
 from GspeechToTextHelper import GspeechToTextHelper
 from GnlpSentimentHelper import GSentimentHelper
 
-from google.cloud import language
-from google.cloud.language import enums
-from google.cloud.language import types
-import time
-import GnlpSentimentHelper
-
+from HttpInputHelper import HttpInputHelper
 
 
 
 
 if __name__ == '__main__':
     print("runner")
-    start=time.time()
-    speechToText=GspeechToTextHelper()
-    textSentiment=GSentimentHelper()
-    results=speechToText.transcribe("cliente1.wav", 44100, "it-IT")
-    for result in results:
-        textSentiment.analyzeSentiment(result,'it')
-        print(str(textSentiment.sentiment.score)+' & '+str(textSentiment.sentiment.magnitude))
-    
-    end=time.time()
-    print(end-start)
-    #testSpeech()
+    #fileUrl="https://emotionsproject.appspot.com/public/audio/cliente1.wav"
+    #helper=HttpInputHelper()
+    #f=helper.getFileFromUrl(fileUrl)
+    #transcribe=GspeechToTextHelper()
+    #transcribe.transcribe(f, 44100, "it-IT")
+    g=GSentimentHelper();
+    g.analyzeSentiment("per me è un problema abito in campagna e attualmente sono senza macchina non posso riportare velo", "it")
+    print(g.sentiment.score+' & '+g.sentiment.magnitude)
