@@ -30,9 +30,11 @@ class TrascriviResponse(object):
    
          
 class TextSentimentResponse(object):
-    def __init__(self,sentiment,execTime):
-        self.sentiment=sentiment
+    def __init__(self,score,magnitude,execTime,content):
+        self.score=score
+        self.magnitude=magnitude
         self.execTime=execTime
+        self.content=content
 
 class ErrorResponse(object):
     def __init__(self,error,message):

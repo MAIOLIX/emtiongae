@@ -38,19 +38,14 @@ def hello():
     #print(v.analyzeEmotion("http://localhost:8080/public/audio/cliente1.wav"))
    
     """Return a friendly HTTP greeting."""
-    return 'Hello World!'
-
-
-
-
-
+    return app.response_class(response='Never ending story',status=200)
 
 
 @app.route('/public/<path:path>')
 def getStaticResources(path):
     return send_from_directory('public', path)
 
-@app.route('/emotion',methods=['POST'])
+@app.route('/emotions/audio/analyzeByUrl',methods=['POST'])
 def emotions():
     request_json= request.get_json()
     fileUrl=request_json.get('url')
@@ -62,7 +57,7 @@ def emotions():
     return response
 
 
-@app.route('/emotions/embedded',methods=['POST'])
+@app.route('/emotions/audio/analyzeEmbedded',methods=['POST'])
 def emotionEmbedded() :
     request_json=request.get_json()
     encodedFile=request_json.get('wav')
@@ -74,7 +69,7 @@ def emotionEmbedded() :
 
     return response
 
-@app.route('/emotions/text/transcribe/transcribeByUrl',methods=['POST'])
+@app.route('/emotions/transcribe/transcribeByUrl',methods=['POST'])
 def trascribeFromUrl():
     start=time.time()
     myRequest=request.get_json()
@@ -84,29 +79,69 @@ def trascribeFromUrl():
     if myUrl is not None:
         f=fileInputHelper.getFileFromUrl(myUrl)
         try:
-             (sample_rate,samples)=wavfile.read(f)
-             print('sample Rate  %.3f Hz' %sample_rate)
-             transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
-             end=time.time()
-             elapsed=end-start
-             myResponse=TrascriviResponse(transcriptions,sample_rate,elapsed)
-             myStatus=200
+            (sample_rate,samples)=wavfile.read(f)
+            print('sample Rate  %.3f Hz' %sample_rate)
+            transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
+            end=time.time()
+            elapsed=end-start
+            myResponse=TrascriviResponse(transcriptions,sample_rate,elapsed)
+            myStatus=200
         except:
             myResponse=ErrorResponse('Errore su trascrizione','Errore transcrizione')
             myStatus=400
         finally:
             results=app.response_class(response=json.dumps(myResponse.__dict__),status=myStatus,mimetype='application/json')
     else:
-        results=app.response_class(response="Url non trovato",status=400,mimetype='application/json')
-            
+        results=app.response_class(response="Url non trovato",status=400,mimetype='application/json')         
     return results    
 
+@app.route('/emotions/sentiment/analyzeText',methods=['POST'])
+def analyzeTextSentiment():
+    start=time.time()
+    myRequest=request.get_json()
+    content=myRequest.get('testo')
+    myResponse=None
+    myStatus=None
+    try :
+        if content is not None:
+            textSentiment.analyzeSentiment(content, "it")
+            end=time.time()
+            elapsed=end-start
+            myResponse=TextSentimentResponse(textSentiment.sentiment.score,textSentiment.sentiment.magnitude,elapsed,content)
+            myStatus=200
+        else :
+            myStatus=400
+            myResponse=ErrorResponse('NO_CONTENT_IN_BODY','Contenuto non trovato nel body')
+    except:
+        myStatus=400
+        myResponse=ErrorResponse('EXCEPTION_RAISE',"Problema nell'analisi del sentiment")
+    finally:
+        result=app.response_class(response=json.dumps(myResponse.__dict__),status=myStatus,mimetype='application/json')
+    return result
 
-
-
-
-
-     
+@app.route('/emotions/sentiment/analyzeFromFileByUrl',methods=['POST'])
+def analyzeSentimentByFile():
+    start=time.time()
+    myRequest=request.get_json()
+    myUrl=myRequest.get('url')
+    myResponse=[]
+    myStatus=None
+    if myUrl is not None:
+        f=fileInputHelper.getFileFromUrl(myUrl)
+        (sample_rate,samples)=wavfile.read(f)
+        print('sample Rate  %.3f Hz' %sample_rate)
+        transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
+        for transcription in transcriptions : 
+            textSentiment.analyzeSentiment(transcription, "it")
+            appo=textSentiment.sentiment
+            appItem=TextSentimentResponse(appo.score, appo.magnitude, 0, transcription)
+            myResponse.append(appItem)
+        myStatus=200
+    else:
+        myStatus=400
+        myResponse.append(ErrorResponse('NO_URL_IN_BODY','Url non trovato nel body'))
+    result=app.response_class(response=json.dumps([ob.__dict__ for ob in myResponse]),status=myStatus,mimetype='application/json')
+    return result
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
