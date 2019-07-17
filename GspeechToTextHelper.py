@@ -36,6 +36,20 @@ class GspeechToTextHelper(object):
             results.append(result.alternatives[0].transcript)
         
         return results
+    def transcribeFromBucket(self,gcs_uri,sample_rate,languageCode):
+        client = speech.SpeechClient()
+        audio = types.RecognitionAudio(uri=gcs_uri)
+        config = types.RecognitionConfig(
+                    encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+                    sample_rate_hertz=sample_rate,
+                    language_code=languageCode)
+
+        response = client.recognize(config, audio)
+        results=[]
+        for result in response.results:
+            print('Transcript: {}'.format(result.alternatives[0].transcript))
+            results.append(result.alternatives[0].transcript)
+        
  
     
     
