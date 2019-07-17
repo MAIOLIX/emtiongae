@@ -4,7 +4,6 @@ Created on 16 lug 2019
 @author: maiola_st
 '''
 
-import os
 import requests
 import base64
 import io 

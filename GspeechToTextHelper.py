@@ -50,6 +50,6 @@ class GspeechToTextHelper(object):
             print('Transcript: {}'.format(result.alternatives[0].transcript))
             results.append(result.alternatives[0].transcript)
         
- 
+        return results
     
     

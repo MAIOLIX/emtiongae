@@ -22,6 +22,8 @@ from HttpInputHelper import HttpInputHelper
 from HttpInputHelper import ErrorResponse,TrascriviResponse,TextSentimentResponse
 from scipy.io import wavfile
 import time
+from GBucketHelper import GBucketHelper
+from google.cloud.storage import bucket
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -31,15 +33,17 @@ v=VokaturiHelper();
 transcriber=GspeechToTextHelper()
 textSentiment=GSentimentHelper()
 fileInputHelper=HttpInputHelper()
+bucketHelper=GBucketHelper()
+
+
+
 
 @app.route('/')
 def hello():
     print(platform)
     #print(v.analyzeEmotion("http://localhost:8080/public/audio/cliente1.wav"))
-   
     """Return a friendly HTTP greeting."""
     return app.response_class(response='Never ending story',status=200)
-
 
 @app.route('/public/<path:path>')
 def getStaticResources(path):
@@ -50,8 +54,16 @@ def emotions():
     request_json= request.get_json()
     fileUrl=request_json.get('url')
     if fileUrl is not None:
-        v.analyzeEmotionFromUrl(fileUrl)
-        response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+        if fileUrl[0:3]=="gs:":
+            print(fileUrl)
+            fileUrl=fileUrl[3:]
+            (uri,f)=bucketHelper.getFileFromBucket(fileUrl)
+            v.analyzeEmotion(f)
+            response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+            print(uri)
+        else:
+            v.analyzeEmotionFromUrl(fileUrl)
+            response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
     else :
         response=app.response_class(response='FILE URL missing',status=400)
     return response
@@ -77,7 +89,11 @@ def trascribeFromUrl():
     myResponse=None
     myStatus=None
     if myUrl is not None:
-        f=fileInputHelper.getFileFromUrl(myUrl)
+        if myUrl[0:3]=='gs:':
+            myUrl=myUrl[3:]
+            (uri,f)=bucketHelper.getFileFromBucket(myUrl)
+        else:
+            f=fileInputHelper.getFileFromUrl(myUrl)
         try:
             (sample_rate,samples)=wavfile.read(f)
             print('sample Rate  %.3f Hz' %sample_rate)
@@ -127,7 +143,11 @@ def analyzeSentimentByFile():
     myResponse=[]
     myStatus=None
     if myUrl is not None:
-        f=fileInputHelper.getFileFromUrl(myUrl)
+        if myUrl[0:3]=='gs:':
+            myUrl=myUrl[3:]
+            (uri,f)=bucketHelper.getFileFromBucket(myUrl)
+        else:
+            f=fileInputHelper.getFileFromUrl(myUrl) 
         (sample_rate,samples)=wavfile.read(f)
         print('sample Rate  %.3f Hz' %sample_rate)
         transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
