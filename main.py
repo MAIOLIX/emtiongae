@@ -23,7 +23,7 @@ from HttpInputHelper import ErrorResponse,TrascriviResponse,TextSentimentRespons
 from scipy.io import wavfile
 import time
 from GBucketHelper import GBucketHelper
-from google.cloud.storage import bucket
+
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -162,6 +162,42 @@ def analyzeSentimentByFile():
         myResponse.append(ErrorResponse('NO_URL_IN_BODY','Url non trovato nel body'))
     result=app.response_class(response=json.dumps([ob.__dict__ for ob in myResponse]),status=myStatus,mimetype='application/json')
     return result
+
+@app.route('/emotions/repository',methods=['GET'])
+def getFilesFromBucket():
+    myFileInBucket=bucketHelper.getListBucket()
+    result=app.response_class(response=json.dumps([ob.__dict__ for ob in myFileInBucket]),status=200,mimetype='application/json')
+    return result
+
+
+
+@app.route('/emotions/repository',methods=['POST'])
+def uploadFileToBucket():
+    responseMessage=None
+    responseCode=None
+    result=None
+    try:
+        nomeFile=request.form['nome']
+        fileData=request.files['file']
+        bucketHelper.uploadFileToBucket(fileData, nomeFile)
+        responseMessage="File Caricato"
+        responseCode=301
+    except:
+        responseMessage='Caricamento non avvenuto'
+        responseCode=400
+    finally:
+        result=app.response_class(response=responseMessage,status=responseCode,mimetype='application/json')
+    return result
+
+
+@app.route('/emotions/repository',methods=['DELETE'])
+def deleteFileFromBucket():
+    nomeFile=request.args.get('file')
+    if nomeFile is not None: 
+        bucketHelper.deleteFileFromBucket(nomeFile)
+        return 'File eliminato'
+    else:
+        return 'Nessuna operazione eseguita'
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
