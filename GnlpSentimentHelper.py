@@ -15,7 +15,7 @@ import os
 class GSentimentHelper(object):
     
     def __init__(self):
-        pathCredential=os.path.abspath("emotionsproject-e711fd0283dd.json")
+        pathCredential=os.path.abspath("emoMaiolix-07d9a74a270c.json")
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=pathCredential
     
     def analyzeSentiment(self,content,lingua):

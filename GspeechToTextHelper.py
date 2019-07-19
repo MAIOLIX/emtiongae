@@ -14,7 +14,7 @@ from google.cloud.speech import types
 class GspeechToTextHelper(object):
     
     def __init__(self):
-        pathCredential=os.path.abspath("emotionsproject-e711fd0283dd.json")
+        pathCredential=os.path.abspath("emoMaiolix-07d9a74a270c.json")
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=pathCredential
         #print(os.environ["http_proxy"])
     

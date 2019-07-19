@@ -10,12 +10,12 @@ import io
 
 class GBucketHelper(object):
     def __init__(self):
-        pathCredential=os.path.abspath("emotionsproject-e711fd0283dd.json")
+        pathCredential=os.path.abspath("emoMaiolix-07d9a74a270c.json")
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=pathCredential
-        self.bucketRoot="audio-bucket-emotions"
+        self.bucketRoot="audio-bucket-emotions2"
         self.storageClient=storage.Client()
         self.bucket=self.storageClient.get_bucket(self.bucketRoot)
-        self.gsRootUri="gs://audio-bucket-emotions/"
+        self.gsRootUri="gs://audio-bucket-emotions2/"
     
     def getListBucket(self):
         myFiles=self.bucket.list_blobs()
