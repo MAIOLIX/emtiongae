@@ -23,6 +23,7 @@ from HttpInputHelper import ErrorResponse,TrascriviResponse,TextSentimentRespons
 from scipy.io import wavfile
 import time
 from GBucketHelper import GBucketHelper
+from flask.helpers import send_file
 
 
 
@@ -165,9 +166,15 @@ def analyzeSentimentByFile():
 
 @app.route('/emotions/repository',methods=['GET'])
 def getFilesFromBucket():
-    myFileInBucket=bucketHelper.getListBucket()
-    result=app.response_class(response=json.dumps([ob.__dict__ for ob in myFileInBucket]),status=200,mimetype='application/json')
-    return result
+    nomeFile=request.args.get('file')
+    if nomeFile is not None:
+        (uri,f)=bucketHelper.getFileFromBucket(nomeFile)
+        print(nomeFile)
+        return send_file(f, mimetype='audio/wav',attachment_filename=nomeFile)
+    else:
+        myFileInBucket=bucketHelper.getListBucket()
+        result=app.response_class(response=json.dumps([ob.__dict__ for ob in myFileInBucket]),status=200,mimetype='application/json')
+        return result
 
 
 
