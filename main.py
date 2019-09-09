@@ -24,6 +24,7 @@ from scipy.io import wavfile
 import time
 from GBucketHelper import GBucketHelper
 from flask.helpers import send_file
+from flask_cors.extension import CORS
 
 
 
@@ -35,7 +36,7 @@ transcriber=GspeechToTextHelper()
 textSentiment=GSentimentHelper()
 fileInputHelper=HttpInputHelper()
 bucketHelper=GBucketHelper()
-
+cors=CORS(app)
 
 
 
