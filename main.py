@@ -25,8 +25,9 @@ import time
 from GBucketHelper import GBucketHelper
 from flask.helpers import send_file
 from flask_cors.extension import CORS
-
-
+import wave
+import io
+import audioop
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -151,6 +152,10 @@ def analyzeSentimentByFile():
         else:
             f=fileInputHelper.getFileFromUrl(myUrl) 
         (sample_rate,samples)=wavfile.read(f)
+        appo=transcriber.convertStereoToMono(f)
+        bolla=appo.getvalue()
+        #print(bolla)
+        f=io.BytesIO(bolla)
         print('sample Rate  %.3f Hz' %sample_rate)
         transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
         for transcription in transcriptions : 

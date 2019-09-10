@@ -7,21 +7,26 @@ from GBucketHelper import GBucketHelper
 import io
 from VokaturiHelper import VokaturiHelper
 from GspeechToTextHelper import GspeechToTextHelper
+import wave
+import audioop
 
 
 if __name__ == '__main__':
     print("runner")
-    helper=GBucketHelper()
-    (uri,f)=helper.getFileFromBucket('cliente1.wav')
-    print(f)
-    print(uri)
-    v=VokaturiHelper()
-    v.analyzeEmotion(f)
-    print(v.emotions.anger)
-    helper2=GspeechToTextHelper()
-    results=helper2.transcribeFromBucket(uri, 44100, "it-IT")
-    for result in results:
-        print(result)
+   
+    bucketHelper=GBucketHelper()
+    #emovo/neu-m3-l2.wav
+    (a,b)=bucketHelper.getFileFromBucket("emovo/neu-m3-l2.wav")
+    speechHelper=GspeechToTextHelper()
+    appolo=speechHelper.convertStereoToMono(b)
+    bolla=appolo.getvalue()
+    print(bolla)
+    fileApp=open("bolla.wav","wb")
+    fileApp.write(bolla)
+       # audioSeg=AudioSegment(b)
+   # audioSeg.set_channels(1)
+   # audioSeg.export("gino.wav",format="wav")
+    print('fine')
     
     
     #myFiles.delete()

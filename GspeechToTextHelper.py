@@ -10,6 +10,9 @@ import os
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
+import wave
+import io
+import audioop
 
 class GspeechToTextHelper(object):
     
@@ -51,5 +54,33 @@ class GspeechToTextHelper(object):
             results.append(result.alternatives[0].transcript)
         
         return results
-    
+    def convertStereoToMono(self,buffer):
+        #if self.isStereo(buffer):
+        print(buffer.__sizeof__())
+        appo=wave.open(buffer, "rb")
+        if(appo.getnchannels()==2):
+            print("file Stereo")
+            buff=io.BytesIO()
+            print(buff.__sizeof__())
+            mono=wave.open(buff,"wb")
+            mono.setparams(appo.getparams())
+            mono.setnchannels(1)
+            mono.writeframes(audioop.tomono(appo.readframes(float('inf')), appo.getsampwidth(), 1.414, 1.414))
+            buff.getbuffer()
+            print(buff.__sizeof__())
+            mono.close()
+            print(buff.__sizeof__())
+            return buff
+        else:
+            print("file Mono")
+            return buffer
+        
+    def isStereo(self,buffer):
+        fileInput=wave.open(buffer, "rb")
+        channel=fileInput.getnchannels()
+        #fileInput.close()
+        if channel==2:
+            return True
+        return False    
+                
     
