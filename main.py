@@ -52,6 +52,20 @@ def hello():
 def getStaticResources(path):
     return send_from_directory('public', path)
 
+
+
+@app.route('/emotions/audio/analyzeByForm',methods=['POST'])
+def emotionsByFormData():
+    try:
+        myFile=request.files['file']
+        if myFile is not None:
+            v.analyzeEmotion(myFile)
+            response=app.response_class(response=json.dumps(v.emotions.__dict__),status=200,mimetype='application/json')
+    except:
+        response=app.response_class(response='PROBLEMS ON Analysis',status=400)
+    return response
+
+
 @app.route('/emotions/audio/analyzeByUrl',methods=['POST'])
 def emotions():
     request_json= request.get_json()
@@ -141,34 +155,38 @@ def analyzeTextSentiment():
 @app.route('/emotions/sentiment/analyzeFromFileByUrl',methods=['POST'])
 def analyzeSentimentByFile():
     start=time.time()
-    myRequest=request.get_json()
-    myUrl=myRequest.get('url')
     myResponse=[]
     myStatus=None
+    myRequest=request.get_json()
+    if myRequest is not None:   
+        myUrl=myRequest.get('url')
+    else:
+        myUrl=None
+        myFile=request.files['file'];
+    f=None
     if myUrl is not None:
         if myUrl[0:3]=='gs:':
             myUrl=myUrl[3:]
             (uri,f)=bucketHelper.getFileFromBucket(myUrl)
         else:
             f=fileInputHelper.getFileFromUrl(myUrl) 
-        (sample_rate,samples)=wavfile.read(f)
-        appo=transcriber.convertStereoToMono(f)
-        bolla=appo.getvalue()
-        #print(bolla)
-        f=io.BytesIO(bolla)
-        print('sample Rate  %.3f Hz' %sample_rate)
-        transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
-        for transcription in transcriptions : 
-            textSentiment.analyzeSentiment(transcription, "it")
-            appo=textSentiment.sentiment
-            appItem=TextSentimentResponse(appo.score, appo.magnitude, 0, transcription)
-            myResponse.append(appItem)
-        myStatus=200
-    else:
-        myStatus=400
-        myResponse.append(ErrorResponse('NO_URL_IN_BODY','Url non trovato nel body'))
+    else :
+        f=myFile
+    (sample_rate,samples)=wavfile.read(f)
+    appo=transcriber.convertStereoToMono(f)
+    bolla=appo.getvalue()
+    f=io.BytesIO(bolla)
+    print('sample Rate  %.3f Hz' %sample_rate)
+    transcriptions=transcriber.transcribe(f, sample_rate, "it-IT")
+    for transcription in transcriptions : 
+        textSentiment.analyzeSentiment(transcription, "it")
+        appo=textSentiment.sentiment
+        appItem=TextSentimentResponse(appo.score, appo.magnitude, 0, transcription)
+        myResponse.append(appItem)
+    myStatus=200
     result=app.response_class(response=json.dumps([ob.__dict__ for ob in myResponse]),status=myStatus,mimetype='application/json')
     return result
+    
 
 @app.route('/emotions/repository',methods=['GET'])
 def getFilesFromBucket():

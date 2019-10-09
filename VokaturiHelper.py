@@ -21,7 +21,7 @@ class VokaturiHelper(object):
         self.__checkOS()
         if self.__osSystem=='win32':
             print ("Loading library...")
-            Vokaturi.load("./lib/open/win/OpenVokaturi-3-3-win64.dll")
+            Vokaturi.load("./lib/open/win/OpenVokaturi-3-3-win32.dll")
         if self.__osSystem=='linux':
             Vokaturi.load('./lib/open/linux/OpenVokaturi-3-3-linux64.so')
     def __checkOS(self):
